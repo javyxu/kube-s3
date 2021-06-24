@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 set -o errexit
-set -o errtrace
+# set -o errtrace
 IFS=$'\n\t'
 
 export S3_ACL=${S3_ACL:-private}
@@ -16,9 +16,11 @@ if [ "$IAM_ROLE" == "none" ]; then
   chmod 0400 /etc/passwd-s3fs
 
   echo 'IAM_ROLE is not set - mounting S3 with credentials from ENV'
-  /usr/bin/s3fs  ${S3_BUCKET} ${MNT_POINT} -d -d -f -o endpoint=${S3_REGION},allow_other,retries=5
+  # /usr/bin/s3fs  ${S3_BUCKET} ${MNT_POINT} -d -d -f -o endpoint=${S3_REGION},allow_other,retries=5
+  /usr/bin/s3fs  ${S3_BUCKET} ${MNT_POINT} -d -d -f -o allow_other,retries=5 -o url=${AWS_URL} -o use_path_request_style -o passwd_file=/etc/passwd-s3fs
   echo 'started...'
 else
   echo 'IAM_ROLE is set - using it to mount S3'
-  /usr/bin/s3fs ${S3_BUCKET} ${MNT_POINT} -d -d -f -o endpoint=${S3_REGION},iam_role=${IAM_ROLE},allow_other,retries=5
+  # /usr/bin/s3fs ${S3_BUCKET} ${MNT_POINT} -d -d -f -o endpoint=${S3_REGION},iam_role=${IAM_ROLE},allow_other,retries=5
+  /usr/bin/s3fs ${S3_BUCKET} ${MNT_POINT} -d -d -f -o iam_role=${IAM_ROLE},allow_other,retries=5 -o url=${AWS_URL} -o use_path_request_style -o passwd_file=/etc/passwd-s3fs
 fi
